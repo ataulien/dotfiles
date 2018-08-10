@@ -32,59 +32,71 @@ values."
    '()
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(
-      ;; ----------------------------------------------------------------
-      ;; Example of useful layers you may want to use right away.
-      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
-      ;; <M-m f e R> (Emacs style) to install them.
-      ;; ----------------------------------------------------------------
-      helm
+   '(windows-scripts
+     yaml
+     html
+     ;; ----------------------------------------------------------------
+     ;; Example of useful layers you may want to use right away.
+     ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
+     ;; <M-m f e R> (Emacs style) to install them.
+     ;; ----------------------------------------------------------------
+     helm
+     shell
+     ;; my-irony
+     lsp
+     lsp-cquery
+     (auto-completion :variables spacemacs-default-company-backends '(company-files ;; company-irony
+                                                                                    company-lsp))
+     (python :variables python-enable-yapf-format-on-save t)
 
-      my-irony
-      (auto-completion :variables spacemacs-default-company-backends '(company-files company-irony))
-      semantic
-      ;; better-defaults
-      ;; emacs-lisp
-      ;; git
-      ;; version-control
-      ;; markdown
-      ;; org
-      ;; (shell :variables
-      ;;        shell-default-height 30
-      ;;        shell-default-position 'bottom)
-      ;; spell-checking
-      ;; syntax-checking
-      ;; version-control
-      gtags
-      umlauts
-      ranger
-      c-c++
-      ;; (c-c++ :variables c-c++-enable-clang-support
-      ;;        t)
-      )
-  
+     semantic
+     ;; better-defaults
+     ;; emacs-lisp
+     git
+     ;; version-control
+     markdown
+     pandoc
+     org
+     ;; (shell :variables
+     ;;        shell-default-height 30
+     ;;        shell-default-position 'bottom)
+     spell-checking
+     syntax-checking
+     ;; version-control
+     gtags
+     umlauts
+     ranger
+     themes-megapack
+     (colors :variables colors-enable-nyan-cat-progress-bar t)
+     (c-c++ :variables c-c++-enable-clang-format-on-save t)
+     (cmake :variables cmake-enable-cmake-ide-support t)
+     ;; (c-c++ :variables c-c++-enable-clang-support
+     ;;        t)
+     )
 
-  ;; List of additional packages that will be installed without being
-  ;; wrapped in a layer. If you need some configuration for these
-  ;; packages, then consider creating a layer. You can also put the
-  ;; configuration in `dotspacemacs/user-config'.
-  dotspacemacs-additional-packages
-  '()
-  ;; A list of packages that cannot be updated.
-  dotspacemacs-frozen-packages
-  '()
-  ;; A list of packages that will not be installed and loaded.
-  dotspacemacs-excluded-packages
-  '()
-  ;; Defines the behaviour of Spacemacs when installing packages.
-  ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
-  ;; `used-only' installs only explicitly used packages and uninstall any
-  ;; unused packages as well as their unused dependencies.
-  ;; `used-but-keep-unused' installs only the used packages but won't uninstall
-  ;; them if they become unused. `all' installs *all* packages supported by
-  ;; Spacemacs and never uninstall them. (default is `used-only')
-  dotspacemacs-install-packages
-  'used-only))
+   ;; List of additional packages that will be installed without being
+   ;; wrapped in a layer. If you need some configuration for these
+   ;; packages, then consider creating a layer. You can also put the
+   ;; configuration in `dotspacemacs/user-config'.
+   dotspacemacs-additional-packages
+   '(evil-smartparens
+     eclim
+     yasnippet-snippets)
+   ;; A list of packages that cannot be updated.
+   dotspacemacs-frozen-packages
+   '()
+   ;; A list of packages that will not be installed and loaded.
+   dotspacemacs-excluded-packages
+   '()
+   ;; Defines the behaviour of Spacemacs when installing packages.
+   ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
+   ;; `used-only' installs only explicitly used packages and uninstall any
+   ;; unused packages as well as their unused dependencies.
+   ;; `used-but-keep-unused' installs only the used packages but won't uninstall
+   ;; them if they become unused. `all' installs *all* packages supported by
+   ;; Spacemacs and never uninstall them. (default is `used-only')
+   dotspacemacs-install-packages
+   'used-only))
 
 (defun dotspacemacs/init ()
   "Initialization function.
@@ -301,7 +313,7 @@ values."
    t
    ;; If non nil unicode symbols are displayed in the mode line. (default t)
    dotspacemacs-mode-line-unicode-symbols
-   t
+   nil
    ;; If non nil smooth scrolling (native-scrolling) is enabled. Smooth
    ;; scrolling overrides the default behavior of Emacs which recenters point
    ;; when it reaches the top or bottom of the screen. (default t)
@@ -348,7 +360,7 @@ values."
    ;; tool of the list. Supported tools are `ag', `pt', `ack' and `grep'.
    ;; (default '("ag" "pt" "ack" "grep"))
    dotspacemacs-search-tools
-   '("ag" "pt" "ack" "grep")
+   '("rg" "ag" "pt" "ack" "grep")
    ;; The default package repository used if no explicit repository has been
    ;; specified with an installed package.
    ;; Not used for now. (default nil)
@@ -360,7 +372,11 @@ values."
    ;; delete only whitespace for changed lines or `nil' to disable cleanup.
    ;; (default nil)
    dotspacemacs-whitespace-cleanup
-   nil))
+   nil
+
+   dotspacemacs-mode-line-theme
+   '(spacemacs :separator wave :separator-scale 1.5)
+   ))
 
 (defun dotspacemacs/user-init ()
   "Initialization function for user code.
@@ -370,26 +386,15 @@ executes.
 before packages are loaded. If you are unsure, you should try in setting them in
 `dotspacemacs/user-config' first."
 
-  (setq helm-ff-skip-boring-files t)
-  (setq-default helm-grep-ignored-files
-                (append '(
-                          "*.al"
-                          "*.list"
-                          "*.map"
-                          "*.su") helm-grep-ignored-files))
-  (setq-default helm-boring-file-regexp-list
-                (append '("\\.DS_Store$"
-                          "\\.svn$"
-                          "\\.al$"
-                          "\\.su$"
-                          "\\.elf$"
-                          "\\.hex$"
-                          "\\.list$"
-                          "\\.map$"
-                          "\\.svn-base$"
-                          "\\.swp$") helm-boring-file-regexp-list))
+  (setq-default git-enable-magit-svn-plugin t)
+  (setq cquery-extra-args '("--log-file=d:/cqemacs.log"))
+  (setq cquery-executable "D:/tools/cquery/bin/cquery.exe")
+  (setq cquery-cache-dir ".cquery_cached_index")
   (setq dotspacemacs-elpa-https nil)
-  (setq url-proxy-services '(("no_proxy" . "^\\(localhost\\|10.*\\)")
+  ;; (setq url-proxy-services '(("no_proxy" . "^\\(localhost\\|10.*\\)")
+  ;;                            ("http" . "172.17.1.20:8080")
+  ;;                            ("https" . "172.17.1.20:8080")))
+  (setq url-proxy-services '(("no_proxy" . "127.0.0.1")
                              ("http" . "172.17.1.20:8080")
                              ("https" . "172.17.1.20:8080")))
   )
@@ -405,7 +410,75 @@ you should place your code here."
        'stringp)
   (setq c-default-style "bsd"
         c-basic-offset 2)
-  ;; Windows performance tweaks
+
+  (evil-goggles-mode)
+
+  ;; Make room for nyan cat
+  (spaceline-toggle-minor-modes-off)
+
+  (setq cquery-sem-highlight-method 'font-lock)
+  (cquery-use-default-rainbow-sem-highlight)
+
+  ;; I highly suggest setting ‘flyspell-issue-message-flag’ to nil, as printing messages
+  ;; for every word (when checking the entire buffer) causes an enormous slowdown. – nschum
+  (setq flyspell-issue-message-flag nil)
+
+  ;; Get recent-files faster by ignoring files on remote that are gone
+  (setq recentf-keep '(file-remote-p file-readable-p))
+
+  ;; try to improve slow performance on windows.
+  (setq w32-get-true-file-attributes nil)
+
+  ;; Don't delete files right away
+  (setq delete-by-moving-to-trash t)
+
+  ;; Longer lines in python
+  (setq-default flycheck-flake8-maximum-line-length 99)
+
+  (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
+  (setq cquery-extra-args '("--log-file=d:/cq.log"))
+  (setq cquery-cache-dir ".cquery_cached_index")
+  (setq cquery-executable "D:/tools/cquery/bin/cquery.exe")
+  ;; (setq cquery-extra-init-params '(:index (:comments 2) :cacheFormat "msgpack"))
+
+  (setq helm-ff-skip-boring-files t)
+  (setq-default git-enable-magit-svn-plugin t)
+  (setq helm-make-arguments "-j8")
+
+  ;; Ignore some project specific files
+  (add-hook 'c++-mode-hook 'ignored-c-files-extensions)
+  (add-hook 'c-mode-hook 'ignored-c-files-extensions)
+  ;; (add-hook 'c-mode-hook 'irony-mode)
+  ;; (add-hook 'c-mode-hook 'smartparens-strict-mode)
+  ;; (add-hook 'c-mode-hook 'evil-smartparens-mode)
+
+  ;; (setq eclim-eclipse-dirs '((shell-command-to-string ""C:/Program Files (x86)/Atollic/TrueSTUDIO for ARM 8.1.0/ide""))
+  ;;       eclim-executable (shell-command-to-string ""C:/Program Files (x86)/Atollic/TrueSTUDIO for ARM 8.1.0/ide/eclim.bat""))
+
+  (global-centered-cursor-mode t)
+
+  (defun ignored-c-files-extensions ()
+    (setq-default helm-grep-ignored-files
+                  (append '(
+                            "*.al"
+                            "*.list"
+                            "*.lst"
+                            "*.map"
+                            "*.su") helm-grep-ignored-files))
+
+    (setq-default helm-boring-file-regexp-list
+                  (append '("\\.DS_Store$"
+                            "\\.svn$"
+                            "\\.al$"
+                            "\\.su$"
+                            "\\.elf$"
+                            "\\.hex$"
+                            "\\.list$"
+                            "\\.map$"
+                            "\\.svn-base$"
+                            "\\.swp$") helm-boring-file-regexp-list))
+    )
+  ;; Windows performance tweaks (irony)
   ;;
   (when (boundp 'w32-pipe-read-delay)
     (setq w32-pipe-read-delay 0))
@@ -421,10 +494,17 @@ you should place your code here."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(helm-make-build-dir "Debug/")
+ '(custom-safe-themes
+   (quote
+    ("ab2cbf30ab758c5e936b527377d543ce4927001742f79519b62c45ba9dd9f55e" "66f32da4e185defe7127e0dc8b779af99c00b60c751b0662276acaea985e2721" default)))
+ '(evil-want-Y-yank-to-eol nil)
+ '(global-centered-cursor-mode t)
+ '(helm-gtags-display-style (quote detail))
+ '(lsp-response-timeout 1)
+ '(helm-make-build-dir "Debug-DEVELOPMENT_VERSION/")
  '(package-selected-packages
    (quote
-    (git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter diff-hl helm-gtags ggtags company-irony flycheck-irony company-irony-c-headers irony ranger helm-rtags flycheck-rtags company-rtags rtags stickyfunc-enhance srefactor org-plus-contrib helm-cscope xcscope smeargle orgit mmm-mode markdown-toc markdown-mode magit-gitflow helm-gitignore helm-company helm-c-yasnippet gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit ghub let-alist with-editor disaster company-statistics company-c-headers company cmake-mode clang-format auto-yasnippet yasnippet ac-ispell auto-complete ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async evil-unimpaired f s dash)))
+    (yasnippet-snippets eclim web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc company-tern dash-functional tern coffee-mode evil-smartparens git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter diff-hl helm-gtags ggtags company-irony flycheck-irony company-irony-c-headers irony ranger helm-rtags flycheck-rtags company-rtags rtags stickyfunc-enhance srefactor org-plus-contrib helm-cscope xcscope smeargle orgit mmm-mode markdown-toc markdown-mode magit-gitflow helm-gitignore helm-company helm-c-yasnippet gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit ghub let-alist with-editor disaster company-statistics company-c-headers company cmake-mode clang-format auto-yasnippet yasnippet ac-ispell auto-complete ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async evil-unimpaired f s dash)))
  '(paradox-github-token t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -432,3 +512,34 @@ you should place your code here."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+(defun dotspacemacs/emacs-custom-settings ()
+  "Emacs custom settings.
+This is an auto-generated function, do not modify its content directly, use
+Emacs customize menu instead.
+This function is called at the very end of Spacemacs initialization."
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   (quote
+    ("ab2cbf30ab758c5e936b527377d543ce4927001742f79519b62c45ba9dd9f55e" "66f32da4e185defe7127e0dc8b779af99c00b60c751b0662276acaea985e2721" default)))
+ '(evil-goggles-duration 0.05)
+ '(evil-want-Y-yank-to-eol nil)
+ '(global-centered-cursor-mode t)
+ '(helm-gtags-display-style (quote detail))
+ '(helm-make-build-dir "Debug-DEVELOPMENT_VERSION/")
+ '(lsp-response-timeout 1)
+ '(package-selected-packages
+   (quote
+    (magit-svn gitignore-templates yasnippet-snippets eclim web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc company-tern dash-functional tern coffee-mode evil-smartparens git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter diff-hl helm-gtags ggtags company-irony flycheck-irony company-irony-c-headers irony ranger helm-rtags flycheck-rtags company-rtags rtags stickyfunc-enhance srefactor org-plus-contrib helm-cscope xcscope smeargle orgit mmm-mode markdown-toc markdown-mode magit-gitflow helm-gitignore helm-company helm-c-yasnippet gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit ghub let-alist with-editor disaster company-statistics company-c-headers company cmake-mode clang-format auto-yasnippet yasnippet ac-ispell auto-complete ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async evil-unimpaired f s dash)))
+ '(paradox-github-token t))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+)
+
