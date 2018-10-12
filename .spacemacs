@@ -63,9 +63,9 @@ values."
      spell-checking
      syntax-checking
      ;; version-control
-     gtags
      umlauts
      ranger
+     zone-matrix
      themes-megapack
      (colors :variables colors-enable-nyan-cat-progress-bar t)
      (c-c++ :variables c-c++-enable-clang-format-on-save t)
@@ -119,7 +119,7 @@ values."
    ;; If non nil then spacemacs will check for updates at startup
    ;; when the current branch is not `develop'. Note that checking for
    ;; new versions works via git commands, thus it calls GitHub services
-   ;; whenever you start Emacs. (default nil)
+   ;; whenever you st(custom-set-variables
    dotspacemacs-check-for-update
    nil
    ;; If non-nil, a form that evaluates to a package directory. For example, to
@@ -412,11 +412,43 @@ you should place your code here."
         c-basic-offset 2)
 
   (evil-goggles-mode)
+  (setq evil-goggles-duration 0.01)
+
+  ;; Make SPC-p-F find a file and put it into a new window
+  (spacemacs/set-leader-keys "pF" 'projectile-find-file-other-window)
+
+  ;; Make "M" key do what "," did in Vim, execute the opposite of last move command
+  (define-key evil-normal-state-map (kbd "M") 'evil-repeat-find-char-reverse)
+
+  (global-evil-mc-mode 1)
+
+  ;; Reduce delay of SPC-j-j
+  (setq avy-timeout-seconds 0.25)
 
   ;; Make room for nyan cat
   (spaceline-toggle-minor-modes-off)
 
+  ;; Zone out after some time
+  (setq zone-timer (run-with-idle-timer 60 t 'zone))
+
+  ;; Enable all Zone programs
+  (setq zone-programs [
+                       zone-sl
+                       zone-matrix
+                       zone-pgm-rainbow
+                       zone-pgm-putz-with-case
+                       ;; zone-pgm-whack-chars
+                       zone-pgm-five-oclock-swan-dive
+                       zone-pgm-rat-race
+                       ;; zone-pgm-random-life
+                       ])
+
+  ;; See emacs symbols as "word" in evil
+  (with-eval-after-load 'evil
+    (defalias #'forward-evil-WORD #'forward-evil-symbol))
+
   (setq cquery-sem-highlight-method 'font-lock)
+  (setq projectile-enable-caching t)
   (cquery-use-default-rainbow-sem-highlight)
 
   ;; I highly suggest setting ‘flyspell-issue-message-flag’ to nil, as printing messages
@@ -523,17 +555,14 @@ This function is called at the very end of Spacemacs initialization."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   (quote
-    ("ab2cbf30ab758c5e936b527377d543ce4927001742f79519b62c45ba9dd9f55e" "66f32da4e185defe7127e0dc8b779af99c00b60c751b0662276acaea985e2721" default)))
- '(evil-goggles-duration 0.05)
+   '("ab2cbf30ab758c5e936b527377d543ce4927001742f79519b62c45ba9dd9f55e" "66f32da4e185defe7127e0dc8b779af99c00b60c751b0662276acaea985e2721" default))
  '(evil-want-Y-yank-to-eol nil)
  '(global-centered-cursor-mode t)
- '(helm-gtags-display-style (quote detail))
+ '(helm-gtags-display-style 'detail)
  '(helm-make-build-dir "Debug-DEVELOPMENT_VERSION/")
  '(lsp-response-timeout 1)
  '(package-selected-packages
-   (quote
-    (magit-svn gitignore-templates yasnippet-snippets eclim web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc company-tern dash-functional tern coffee-mode evil-smartparens git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter diff-hl helm-gtags ggtags company-irony flycheck-irony company-irony-c-headers irony ranger helm-rtags flycheck-rtags company-rtags rtags stickyfunc-enhance srefactor org-plus-contrib helm-cscope xcscope smeargle orgit mmm-mode markdown-toc markdown-mode magit-gitflow helm-gitignore helm-company helm-c-yasnippet gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit ghub let-alist with-editor disaster company-statistics company-c-headers company cmake-mode clang-format auto-yasnippet yasnippet ac-ispell auto-complete ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async evil-unimpaired f s dash)))
+   '(zone-sl yasnippet-snippets eclim web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc company-tern dash-functional tern coffee-mode evil-smartparens git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter diff-hl helm-gtags ggtags company-irony flycheck-irony company-irony-c-headers irony ranger helm-rtags flycheck-rtags company-rtags rtags stickyfunc-enhance srefactor org-plus-contrib helm-cscope xcscope smeargle orgit mmm-mode markdown-toc markdown-mode magit-gitflow helm-gitignore helm-company helm-c-yasnippet gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit ghub let-alist with-editor disaster company-statistics company-c-headers company cmake-mode clang-format auto-yasnippet yasnippet ac-ispell auto-complete ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async evil-unimpaired f s dash))
  '(paradox-github-token t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

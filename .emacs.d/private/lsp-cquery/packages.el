@@ -13,6 +13,11 @@
   '((cquery)
     ))
 
+;;;;;###autoload
+;; (defun ff-find-other-file-other-window ()
+;;     (interactive)
+;;   (ff-find-other-file t))
+
 (defun lsp-cquery/init-cquery ()
   (use-package cquery
     :init
@@ -21,6 +26,9 @@
       (spacemacs/add-to-hooks #'lsp-cquery-enable '(c-mode-hook c++-mode-hook))
       (dolist (mode '(c-mode c++-mode))
         (evil-leader/set-key-for-mode mode
+          ;; Faster without projectile caching but not as reliable
+          ;; "ga" #'ff-find-other-file
+          ;; "gA" #'ff-find-other-file-other-window
           ","  #'lsp-ui-sideline-apply-code-actions
           "fd" #'lsp-ui-peek-find-definitions
           "fr" #'lsp-ui-peek-find-references
