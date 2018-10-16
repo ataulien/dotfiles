@@ -26,14 +26,17 @@ values."
    dotspacemacs-ask-for-lazy-installation
    t
    ;; If non-nil layers with lazy install support are lazy installed.
-   ;; List of additional paths where to look for configuration layers.
+  ;; List of additional paths where to look for configuration layers.
    ;; Paths must have a trailing slash (i.e. `~/.mycontribs/')
    dotspacemacs-configuration-layer-path
    '()
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(windows-scripts
+     rust
+     ;; lsp-rust
      yaml
+
      html
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
@@ -60,9 +63,10 @@ values."
      ;; (shell :variables
      ;;        shell-default-height 30
      ;;        shell-default-position 'bottom)
-     spell-checking
+     ;; spell-checking
      syntax-checking
      ;; version-control
+     ;; gtags
      umlauts
      ranger
      zone-matrix
@@ -80,7 +84,8 @@ values."
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages
    '(evil-smartparens
-     eclim
+     exec-path-from-shell
+     lsp-rust
      yasnippet-snippets)
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages
@@ -385,18 +390,24 @@ executes.
  This function is mostly useful for variables that need to be set
 before packages are loaded. If you are unsure, you should try in setting them in
 `dotspacemacs/user-config' first."
-
+ 
+  (setq exec-path (append exec-path '("/home/andre/.cargo/bin")))
+  (setq shell-file-name "zsh")
+  (setq shell-command-switch "-ic")
+  (exec-path-from-shell-initialize)  
+  (setq python-shell-interpreter "python3")
+  (setq flycheck-python-pycompile-executable "python3")
   (setq-default git-enable-magit-svn-plugin t)
-  (setq cquery-extra-args '("--log-file=d:/cqemacs.log"))
-  (setq cquery-executable "D:/tools/cquery/bin/cquery.exe")
+  ;; (setq cquery-extra-args '("--log-file=d:/cqemacs.log"))
+  (setq cquery-executable "/home/andre/code/cquery/build/cquery")
   (setq cquery-cache-dir ".cquery_cached_index")
   (setq dotspacemacs-elpa-https nil)
   ;; (setq url-proxy-services '(("no_proxy" . "^\\(localhost\\|10.*\\)")
   ;;                            ("http" . "172.17.1.20:8080")
   ;;                            ("https" . "172.17.1.20:8080")))
-  (setq url-proxy-services '(("no_proxy" . "127.0.0.1")
-                             ("http" . "172.17.1.20:8080")
-                             ("https" . "172.17.1.20:8080")))
+;;  (setq url-proxy-services '(("no_proxy" . "127.0.0.1")
+ ;;                            ("http" . "172.17.1.20:8080")
+  ;;                           ("https" . "172.17.1.20:8080")))
   )
 
 (defun dotspacemacs/user-config ()
@@ -409,7 +420,10 @@ you should place your code here."
   (put 'helm-make-build-dir 'safe-local-variable
        'stringp)
   (setq c-default-style "bsd"
-        c-basic-offset 2)
+        c-basic-offset 4)
+
+  ; Look in rustups install directory for rust sources
+  (setq racer-rust-src-path "/home/andre/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src")
 
   (evil-goggles-mode)
   (setq evil-goggles-duration 0.01)
@@ -468,9 +482,6 @@ you should place your code here."
   (setq-default flycheck-flake8-maximum-line-length 99)
 
   (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
-  (setq cquery-extra-args '("--log-file=d:/cq.log"))
-  (setq cquery-cache-dir ".cquery_cached_index")
-  (setq cquery-executable "D:/tools/cquery/bin/cquery.exe")
   ;; (setq cquery-extra-init-params '(:index (:comments 2) :cacheFormat "msgpack"))
 
   (setq helm-ff-skip-boring-files t)
@@ -555,15 +566,18 @@ This function is called at the very end of Spacemacs initialization."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("ab2cbf30ab758c5e936b527377d543ce4927001742f79519b62c45ba9dd9f55e" "66f32da4e185defe7127e0dc8b779af99c00b60c751b0662276acaea985e2721" default))
+   (quote
+    ("ab2cbf30ab758c5e936b527377d543ce4927001742f79519b62c45ba9dd9f55e" "66f32da4e185defe7127e0dc8b779af99c00b60c751b0662276acaea985e2721" default)))
  '(evil-want-Y-yank-to-eol nil)
  '(global-centered-cursor-mode t)
  '(helm-gtags-display-style 'detail)
  '(helm-make-build-dir "Debug-DEVELOPMENT_VERSION/")
  '(lsp-response-timeout 1)
  '(package-selected-packages
-   '(zone-sl yasnippet-snippets eclim web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc company-tern dash-functional tern coffee-mode evil-smartparens git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter diff-hl helm-gtags ggtags company-irony flycheck-irony company-irony-c-headers irony ranger helm-rtags flycheck-rtags company-rtags rtags stickyfunc-enhance srefactor org-plus-contrib helm-cscope xcscope smeargle orgit mmm-mode markdown-toc markdown-mode magit-gitflow helm-gitignore helm-company helm-c-yasnippet gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit ghub let-alist with-editor disaster company-statistics company-c-headers company cmake-mode clang-format auto-yasnippet yasnippet ac-ispell auto-complete ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async evil-unimpaired f s dash))
- '(paradox-github-token t))
+   (quote
+    (lsp-rust yasnippet-snippets eclim web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc company-tern dash-functional tern coffee-mode evil-smartparens git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter diff-hl helm-gtags ggtags company-irony flycheck-irony company-irony-c-headers irony ranger helm-rtags flycheck-rtags company-rtags rtags stickyfunc-enhance srefactor org-plus-contrib helm-cscope xcscope smeargle orgit mmm-mode markdown-toc markdown-mode magit-gitflow helm-gitignore helm-company helm-c-yasnippet gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit ghub let-alist with-editor disaster company-statistics company-c-headers company cmake-mode clang-format auto-yasnippet yasnippet ac-ispell auto-complete ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async evil-unimpaired f s dash)))
+ '(paradox-github-token t)
+ '(python-shell-interpreter "python3" t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
