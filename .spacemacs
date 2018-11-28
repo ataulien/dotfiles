@@ -47,7 +47,7 @@ values."
      shell
      ;; my-irony
      lsp
-     lsp-cquery
+     ;; lsp-cquery
      (auto-completion :variables spacemacs-default-company-backends '(company-files ;; company-irony
                                                                                     company-lsp))
      (python :variables python-enable-yapf-format-on-save t)
@@ -72,7 +72,14 @@ values."
      zone-matrix
      themes-megapack
      (colors :variables colors-enable-nyan-cat-progress-bar t)
-     (c-c++ :variables c-c++-enable-clang-format-on-save t)
+     (c-c++ :variables
+            ;; c-c++-enable-clang-format-on-save t
+            c-c++-backend 'lsp-cquery
+            c-c++-lsp-executable "D:/tools/cquery/bin/cquery.exe"
+            c-c++-lsp-sem-highlight-method 'font-lock
+            c-c++-lsp-sem-highlight-rainbow t
+            c-c++-lsp-extra-init-params '(:cacheFormat "json"))
+
      (cmake :variables cmake-enable-cmake-ide-support t)
      ;; (c-c++ :variables c-c++-enable-clang-support
      ;;        t)
@@ -169,22 +176,33 @@ values."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes
-   '(spacemacs-dark spacemacs-light)
-   ;; If non nil the cursor color matches the state color in GUI Emacs.
-   dotspacemacs-colorize-cursor-according-to-state
-   t
+   dotspacemacs-themes '(spacemacs-dark
+                         spacemacs-light)
+
+   ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
+   ;; `all-the-icons', `custom', `doom', `vim-powerline' and `vanilla'. The
+   ;; first three are spaceline themes. `doom' is the doom-emacs mode-line.
+   ;; `vanilla' is default Emacs mode-line. `custom' is a user defined themes,
+   ;; refer to the DOCUMENTATION.org for more info on how to create your own
+   ;; spaceline theme. Value can be a symbol or list with additional properties.
+   ;; (default '(spacemacs :separator wave :separator-scale 1.5))
+   dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 1.5)
+
+   ;; If non-nil the cursor color matches the state color in GUI Emacs.
+   ;; (default t)
+   dotspacemacs-colorize-cursor-according-to-state t
+
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
-   dotspacemacs-default-font
-   '("Source Code Pro" :size 13
-     :weight normal
-     :width normal
-     :powerline-scale 1.1)
-   ;; The leader key
-   dotspacemacs-leader-key
-   "SPC"
-   ;; The key used for Emacs commands (M-x) (after pressing on the leader key).
+   dotspacemacs-default-font '("Source Code Pro"
+                               :size 13
+                               :weight normal
+                               :width normal)
+
+   ;; The leader key (default "SPC")
+   dotspacemacs-leader-key "SPC"
+
+   ;; The key used for Emacs commands `M-x' (after pressing on the leader key).
    ;; (default "SPC")
    dotspacemacs-emacs-command-key
    "SPC"
@@ -235,8 +253,12 @@ values."
    nil
    ;; If non nil then the last auto saved layouts are resume automatically upon
    ;; start. (default nil)
-   dotspacemacs-auto-resume-layouts
-   nil
+   dotspacemacs-auto-resume-layouts nil
+
+   ;; If non-nil, auto-generate layout name when creating new layouts. Only has
+   ;; effect when using the "jump to layout by number" commands. (default nil)
+   dotspacemacs-auto-generate-layout-names nil
+
    ;; Size (in MB) above which spacemacs will prompt to open the large file
    ;; literally to avoid performance issues. Opening a file literally means that
    ;; no major mode or minor modes are active. (default is 1)
@@ -362,15 +384,33 @@ values."
    dotspacemacs-persistent-server
    nil
    ;; List of search tool executable names. Spacemacs uses the first installed
-   ;; tool of the list. Supported tools are `ag', `pt', `ack' and `grep'.
-   ;; (default '("ag" "pt" "ack" "grep"))
-   dotspacemacs-search-tools
-   '("rg" "ag" "pt" "ack" "grep")
-   ;; The default package repository used if no explicit repository has been
-   ;; specified with an installed package.
-   ;; Not used for now. (default nil)
-   dotspacemacs-default-package-repository
-   nil
+   ;; tool of the list. Supported tools are `rg', `ag', `pt', `ack' and `grep'.
+   ;; (default '("rg" "ag" "pt" "ack" "grep"))
+   dotspacemacs-search-tools '("rg" "ag" "pt" "ack" "grep")
+
+   ;; Format specification for setting the frame title.
+   ;; %a - the `abbreviated-file-name', or `buffer-name'
+   ;; %t - `projectile-project-name'
+   ;; %I - `invocation-name'
+   ;; %S - `system-name'
+   ;; %U - contents of $USER
+   ;; %b - buffer name
+   ;; %f - visited file name
+   ;; %F - frame name
+   ;; %s - process status
+   ;; %p - percent of buffer above top of window, or Top, Bot or All
+   ;; %P - percent of buffer above bottom of window, perhaps plus Top, or Bot or All
+   ;; %m - mode name
+   ;; %n - Narrow if appropriate
+   ;; %z - mnemonics of buffer, terminal, and keyboard coding systems
+   ;; %Z - like %z, but including the end-of-line format
+   ;; (default "%I@%S")
+   dotspacemacs-frame-title-format "%I@%S"
+
+   ;; Format specification for setting the icon title format
+   ;; (default nil - same as frame-title-format)
+   dotspacemacs-icon-title-format nil
+
    ;; Delete whitespace while saving buffer. Possible values are `all'
    ;; to aggressively delete empty line and long sequences of whitespace,
    ;; `trailing' to delete only the whitespace at end of lines, `changed'to
@@ -379,9 +419,22 @@ values."
    dotspacemacs-whitespace-cleanup
    nil
 
-   dotspacemacs-mode-line-theme
-   '(spacemacs :separator wave :separator-scale 1.5)
-   ))
+   ;; Either nil or a number of seconds. If non-nil zone out after the specified
+   ;; number of seconds. (default nil)
+   dotspacemacs-zone-out-when-idle nil
+
+   ;; Run `spacemacs/prettify-org-buffer' when
+   ;; visiting README.org files of Spacemacs.
+   ;; (default nil)
+   dotspacemacs-pretty-docs nil))
+
+(defun dotspacemacs/user-env ()
+  "Environment variables setup.
+This function defines the environment variables for your Emacs session. By
+default it calls `spacemacs/load-spacemacs-env' which loads the environment
+variables declared in `~/.spacemacs.env' or `~/.spacemacs.d/.spacemacs.env'.
+See the header of this file for more information."
+  (spacemacs/load-spacemacs-env))
 
 (defun dotspacemacs/user-init ()
   "Initialization function for user code.
@@ -399,8 +452,8 @@ before packages are loaded. If you are unsure, you should try in setting them in
   (setq flycheck-python-pycompile-executable "python3")
   (setq-default git-enable-magit-svn-plugin t)
   ;; (setq cquery-extra-args '("--log-file=d:/cqemacs.log"))
-  (setq cquery-executable "/home/andre/code/cquery/build/cquery")
-  (setq cquery-cache-dir ".cquery_cached_index")
+  ;; (setq cquery-executable "D:/tools/cquery/bin/cquery.exe")
+  ;; (setq cquery-cache-dir ".cquery_cached_index")
   (setq dotspacemacs-elpa-https nil)
   ;; (setq url-proxy-services '(("no_proxy" . "^\\(localhost\\|10.*\\)")
   ;;                            ("http" . "172.17.1.20:8080")
@@ -434,7 +487,7 @@ you should place your code here."
   ;; Make "M" key do what "," did in Vim, execute the opposite of last move command
   (define-key evil-normal-state-map (kbd "M") 'evil-repeat-find-char-reverse)
 
-  (global-evil-mc-mode 1)
+  ;; (global-evil-mc-mode 1)
 
   ;; Reduce delay of SPC-j-j
   (setq avy-timeout-seconds 0.25)
@@ -443,7 +496,7 @@ you should place your code here."
   (spaceline-toggle-minor-modes-off)
 
   ;; Zone out after some time
-  (setq zone-timer (run-with-idle-timer 60 t 'zone))
+  ;; (setq zone-timer (run-with-idle-timer 180 t 'zone))
 
   ;; Enable all Zone programs
   (setq zone-programs [
@@ -461,9 +514,12 @@ you should place your code here."
   (with-eval-after-load 'evil
     (defalias #'forward-evil-WORD #'forward-evil-symbol))
 
-  (setq cquery-sem-highlight-method 'font-lock)
+  ;; (setq cquery-sem-highlight-method 'font-lock)
   (setq projectile-enable-caching t)
-  (cquery-use-default-rainbow-sem-highlight)
+
+  (setq-default color-identifiers-coloring-method 'hash)
+  (setq-default color-identifiers:min-color-saturation 0.7)
+  (setq-default color-identifiers:num-colors 15)
 
   ;; I highly suggest setting ‘flyspell-issue-message-flag’ to nil, as printing messages
   ;; for every word (when checking the entire buffer) causes an enormous slowdown. – nschum
@@ -482,15 +538,14 @@ you should place your code here."
   (setq-default flycheck-flake8-maximum-line-length 99)
 
   (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
-  ;; (setq cquery-extra-init-params '(:index (:comments 2) :cacheFormat "msgpack"))
+  ;; (setq cquery-extra-args '("--log-file=d:/cq.log"))
+  (setq cquery-cache-dir ".cquery_cached_index")
+  ;; (setq cquery-executable "D:/tools/cquery/bin/cquery.exe")
+  (setq cquery-extra-init-params '(:index (:comments 2) :cacheFormat "json"))
 
   (setq helm-ff-skip-boring-files t)
   (setq-default git-enable-magit-svn-plugin t)
   (setq helm-make-arguments "-j8")
-
-  ;; Ignore some project specific files
-  (add-hook 'c++-mode-hook 'ignored-c-files-extensions)
-  (add-hook 'c-mode-hook 'ignored-c-files-extensions)
   ;; (add-hook 'c-mode-hook 'irony-mode)
   ;; (add-hook 'c-mode-hook 'smartparens-strict-mode)
   ;; (add-hook 'c-mode-hook 'evil-smartparens-mode)
@@ -499,6 +554,34 @@ you should place your code here."
   ;;       eclim-executable (shell-command-to-string ""C:/Program Files (x86)/Atollic/TrueSTUDIO for ARM 8.1.0/ide/eclim.bat""))
 
   (global-centered-cursor-mode t)
+
+  ;; (cquery-use-default-rainbow-sem-highlight)
+  ;; (setq cquery-sem-macro-colors '("#cf6d49"))
+
+  ;; (setq cquery-sem-parameter-colors
+  ;;   '("#429921" "#58c1a4" "#5ec648" "#36815b" "#83c65d"
+  ;;     "#417b2f" "#43cc71" "#7eb769" "#58bf89" "#3e9f4a"
+  ;;     "#e1afc3" "#d533bb" "#9b677f" "#e350b6" "#a04360"
+  ;;     "#dd82bc" "#de3864" "#ad3f87" "#dd7a90" "#e0438a"
+  ;;     "#e79528" "#c5373d" "#e8a272" "#d84f2b" "#a67245"
+  ;;     "#e27a33" "#9b4a31" "#b66a1e" "#e27a71" "#cf6d49"
+  ;;     "#e5b124" "#927754" "#eb992c" "#e2bf8f" "#d67c17"
+  ;;     "#88651e" "#e4b953" "#a36526" "#b28927" "#d69855"))
+
+  ;; (setq cquery-sem-variable-colors '("#429921" "#58c1a4" "#5ec648" "#36815b" "#83c65d"
+  ;;                                   "#417b2f" "#43cc71" "#7eb769" "#58bf89" "#3e9f4a"
+  ;;                                   "#e1afc3" "#d533bb" "#9b677f" "#e350b6" "#a04360"
+  ;;                                   "#dd82bc" "#de3864" "#ad3f87" "#dd7a90" "#e0438a"
+  ;;                                   "#e79528" "#c5373d" "#e8a272" "#d84f2b" "#a67245"
+  ;;                                   "#e27a33" "#9b4a31" "#b66a1e" "#e27a71" "#cf6d49"
+  ;;                                   "#e5b124" "#927754" "#eb992c" "#e2bf8f" "#d67c17"
+  ;;                                   "#88651e" "#e4b953" "#a36526" "#b28927" "#d69855"))
+  ;; (setq cquery-sem-function-colors '("#bc6ec5"))
+
+  ;; (set-face-attribute 'cquery-sem-face-function nil
+  ;;                     :weight 'extra-bold)
+
+  ;; (setq cquery-sem-highlight-method 'font-lock)
 
   (defun ignored-c-files-extensions ()
     (setq-default helm-grep-ignored-files
@@ -521,6 +604,14 @@ you should place your code here."
                             "\\.svn-base$"
                             "\\.swp$") helm-boring-file-regexp-list))
     )
+
+  ;; Ignore some project specific files
+  (add-hook 'c++-mode-hook 'ignored-c-files-extensions)
+  (add-hook 'c-mode-hook 'ignored-c-files-extensions)
+  ;; (add-hook 'after-init-hook 'global-color-identifiers-mode)
+  ;; (add-hook 'after-init-hook '(color-identifiers:set-declaration-scan-fn 'c-mode nil)) ;; Does this work?
+  ;; (add-hook 'c-mode-hook 'ignored-c-files-extensions)
+
   ;; Windows performance tweaks (irony)
   ;;
   (when (boundp 'w32-pipe-read-delay)
@@ -574,10 +665,8 @@ This function is called at the very end of Spacemacs initialization."
  '(helm-make-build-dir "Debug-DEVELOPMENT_VERSION/")
  '(lsp-response-timeout 1)
  '(package-selected-packages
-   (quote
-    (lsp-rust yasnippet-snippets eclim web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc company-tern dash-functional tern coffee-mode evil-smartparens git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter diff-hl helm-gtags ggtags company-irony flycheck-irony company-irony-c-headers irony ranger helm-rtags flycheck-rtags company-rtags rtags stickyfunc-enhance srefactor org-plus-contrib helm-cscope xcscope smeargle orgit mmm-mode markdown-toc markdown-mode magit-gitflow helm-gitignore helm-company helm-c-yasnippet gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit ghub let-alist with-editor disaster company-statistics company-c-headers company cmake-mode clang-format auto-yasnippet yasnippet ac-ispell auto-complete ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async evil-unimpaired f s dash)))
- '(paradox-github-token t)
- '(python-shell-interpreter "python3" t))
+   '(counsel swiper ivy yasnippet-snippets eclim web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc company-tern dash-functional tern coffee-mode evil-smartparens git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter diff-hl helm-gtags ggtags company-irony flycheck-irony company-irony-c-headers irony ranger helm-rtags flycheck-rtags company-rtags rtags stickyfunc-enhance srefactor org-plus-contrib helm-cscope xcscope smeargle orgit mmm-mode markdown-toc markdown-mode magit-gitflow helm-gitignore helm-company helm-c-yasnippet gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit ghub let-alist with-editor disaster company-statistics company-c-headers company cmake-mode clang-format auto-yasnippet yasnippet ac-ispell auto-complete ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async evil-unimpaired f s dash))
+ '(paradox-github-token t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
